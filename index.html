@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TODO App - Task Manager (Standalone)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         .task-card {
             transition: all 0.3s ease;
@@ -20,14 +21,95 @@
         .column.bg-blue-50 {
             background-color: rgba(239, 246, 255, 0.6);
         }
+
+        /* Dark Theme */
+        body.dark-theme {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        body.dark-theme header {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        }
+        body.dark-theme .bg-white {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+        body.dark-theme .text-gray-700 {
+            color: #cbd5e0;
+        }
+        body.dark-theme .text-gray-800 {
+            color: #e2e8f0;
+        }
+        body.dark-theme .text-gray-600 {
+            color: #a0aec0;
+        }
+        body.dark-theme .text-gray-500 {
+            color: #718096;
+        }
+        body.dark-theme .bg-gray-50 {
+            background-color: #374151;
+        }
+        body.dark-theme .border-gray-200,
+        body.dark-theme .border-gray-300 {
+            border-color: #4a5568;
+        }
+        body.dark-theme input,
+        body.dark-theme textarea,
+        body.dark-theme select {
+            background-color: #374151;
+            color: #e2e8f0;
+            border-color: #4a5568;
+        }
+
+        /* Minimal Theme */
+        body.minimal-theme {
+            background-color: #fafafa;
+        }
+        body.minimal-theme header {
+            background: white;
+            color: #333;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        body.minimal-theme .bg-blue-600 {
+            background-color: #333;
+        }
+        body.minimal-theme .text-blue-100 {
+            color: #666;
+        }
+        body.minimal-theme .bg-white {
+            background-color: white;
+            border: 1px solid #e0e0e0;
+        }
+        body.minimal-theme .bg-gray-50 {
+            background-color: #fafafa;
+        }
+        body.minimal-theme .task-card {
+            border: 1px solid #e0e0e0;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
     <!-- Header -->
     <header class="bg-blue-600 text-white shadow-lg">
         <div class="container mx-auto px-4 py-6">
-            <h1 class="text-3xl font-bold">📋 Task Manager</h1>
-            <p class="text-blue-100 mt-1">Organize your tasks efficiently (Standalone Version)</p>
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold">📋 Task Manager</h1>
+                    <p class="text-blue-100 mt-1">Organize your tasks efficiently</p>
+                </div>
+                <div class="text-right flex items-center gap-4">
+                    <button onclick="openThemeModal()" class="bg-purple-500 hover:bg-purple-700 px-4 py-2 rounded-lg transition-colors">
+                        🎨 Theme
+                    </button>
+                    <button onclick="openBadgesModal()" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors">
+                        🏆 Achievements
+                    </button>
+                    <div>
+                        <div id="streakDisplay" class="text-2xl font-bold">🔥 0 day streak</div>
+                        <div id="todayTasksDisplay" class="text-sm text-blue-100 mt-1">0 tasks completed today</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -53,6 +135,16 @@
                         rows="3"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Enter task description..."></textarea>
+                </div>
+                <div>
+                    <label for="taskPriority" class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                    <select
+                        id="taskPriority"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="low">🟢 Low Priority</option>
+                        <option value="medium" selected>🟡 Medium Priority</option>
+                        <option value="high">🔴 High Priority</option>
+                    </select>
                 </div>
                 <button
                     type="submit"
@@ -132,6 +224,16 @@
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         placeholder="Enter task description..."></textarea>
                 </div>
+                <div>
+                    <label for="editTaskPriority" class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                    <select
+                        id="editTaskPriority"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="low">🟢 Low Priority</option>
+                        <option value="medium">🟡 Medium Priority</option>
+                        <option value="high">🔴 High Priority</option>
+                    </select>
+                </div>
                 <div class="flex gap-3">
                     <button
                         type="submit"
@@ -149,6 +251,63 @@
         </div>
     </div>
 
+    <!-- Theme Selector Modal -->
+    <div id="themeModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">🎨 Choose Theme</h2>
+                <button onclick="closeThemeModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <button onclick="setTheme('light')" class="w-full p-4 rounded-lg border-2 border-gray-300 hover:border-blue-500 transition-all flex items-center gap-3">
+                    <div class="text-2xl">☀️</div>
+                    <div class="text-left flex-1">
+                        <h3 class="font-bold">Light Theme</h3>
+                        <p class="text-sm text-gray-600">Classic bright appearance</p>
+                    </div>
+                    <div id="light-check" class="hidden text-green-500">✓</div>
+                </button>
+                <button onclick="setTheme('dark')" class="w-full p-4 rounded-lg border-2 border-gray-300 hover:border-blue-500 transition-all flex items-center gap-3">
+                    <div class="text-2xl">🌙</div>
+                    <div class="text-left flex-1">
+                        <h3 class="font-bold">Dark Theme</h3>
+                        <p class="text-sm text-gray-600">Easy on the eyes</p>
+                    </div>
+                    <div id="dark-check" class="hidden text-green-500">✓</div>
+                </button>
+                <button onclick="setTheme('minimal')" class="w-full p-4 rounded-lg border-2 border-gray-300 hover:border-blue-500 transition-all flex items-center gap-3">
+                    <div class="text-2xl">⚪</div>
+                    <div class="text-left flex-1">
+                        <h3 class="font-bold">Minimal Theme</h3>
+                        <p class="text-sm text-gray-600">Clean and simple</p>
+                    </div>
+                    <div id="minimal-check" class="hidden text-green-500">✓</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Badges/Achievements Modal -->
+    <div id="badgesModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">🏆 Your Achievements</h2>
+                <button onclick="closeBadgesModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="badgesContent" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Badges will be rendered here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden transition-all">
         <p id="toastMessage">Success!</p>
@@ -160,13 +319,21 @@
         // State
         let tasks = [];
         let nextId = 1;
+        let streakData = {
+            currentStreak: 0,
+            lastCompletionDate: null,
+            todayCompletions: 0
+        };
 
         // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
             loadTasksFromStorage();
+            loadStreakData();
+            loadTheme();
             setupEventListeners();
             setupDragAndDrop();
             renderTasks();
+            updateStreakDisplay();
         });
 
         // Setup event listeners
@@ -194,6 +361,73 @@
         // Save tasks to localStorage
         function saveTasksToStorage() {
             localStorage.setItem('todo_tasks', JSON.stringify(tasks));
+        }
+
+        // Load streak data from localStorage
+        function loadStreakData() {
+            const stored = localStorage.getItem('todo_streak');
+            if (stored) {
+                streakData = JSON.parse(stored);
+                checkStreakValidity();
+            }
+        }
+
+        // Save streak data to localStorage
+        function saveStreakData() {
+            localStorage.setItem('todo_streak', JSON.stringify(streakData));
+        }
+
+        // Check if streak is still valid (reset if more than 1 day passed)
+        function checkStreakValidity() {
+            if (!streakData.lastCompletionDate) return;
+
+            const today = new Date().toDateString();
+            const lastDate = new Date(streakData.lastCompletionDate).toDateString();
+
+            if (today !== lastDate) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toDateString();
+
+                if (lastDate !== yesterdayStr) {
+                    // Streak broken - more than 1 day passed
+                    streakData.currentStreak = 0;
+                }
+                // Reset today's count
+                streakData.todayCompletions = 0;
+                saveStreakData();
+            }
+        }
+
+        // Update streak when task is completed
+        function updateStreak() {
+            const today = new Date().toDateString();
+            const lastDate = streakData.lastCompletionDate ? new Date(streakData.lastCompletionDate).toDateString() : null;
+
+            if (today !== lastDate) {
+                // First completion today
+                streakData.currentStreak += 1;
+                streakData.lastCompletionDate = new Date().toISOString();
+                streakData.todayCompletions = 1;
+            } else {
+                // Additional completion today
+                streakData.todayCompletions += 1;
+            }
+
+            saveStreakData();
+            updateStreakDisplay();
+        }
+
+        // Update streak display in header
+        function updateStreakDisplay() {
+            const streakDisplay = document.getElementById('streakDisplay');
+            const todayDisplay = document.getElementById('todayTasksDisplay');
+
+            const streakText = streakData.currentStreak === 1 ? 'day' : 'days';
+            streakDisplay.textContent = `🔥 ${streakData.currentStreak} ${streakText} streak`;
+
+            const taskText = streakData.todayCompletions === 1 ? 'task' : 'tasks';
+            todayDisplay.textContent = `${streakData.todayCompletions} ${taskText} completed today`;
         }
 
         // Render tasks to the board
@@ -261,7 +495,10 @@
 
             taskCard.innerHTML = `
                 <div class="flex justify-between items-start mb-2">
-                    <h4 class="font-semibold text-gray-800 flex-1 cursor-pointer hover:text-blue-600" onclick="openEditModal(${task.id})">${escapeHtml(task.title)}</h4>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-800 cursor-pointer hover:text-blue-600 mb-1" onclick="openEditModal(${task.id})">${escapeHtml(task.title)}</h4>
+                        ${getPriorityBadge(task.priority || 'medium')}
+                    </div>
                     <div class="flex gap-1">
                         <button onclick="openEditModal(${task.id})" class="text-blue-500 hover:text-blue-700">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -312,6 +549,7 @@
 
             const title = document.getElementById('taskTitle').value.trim();
             const description = document.getElementById('taskDescription').value.trim();
+            const priority = document.getElementById('taskPriority').value;
 
             if (!title) {
                 showToast('Please enter a task title', 'error');
@@ -322,6 +560,7 @@
                 id: nextId++,
                 title,
                 description: description || null,
+                priority: priority || 'medium',
                 status: 'todo',
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
@@ -334,6 +573,7 @@
             // Clear form
             document.getElementById('taskTitle').value = '';
             document.getElementById('taskDescription').value = '';
+            document.getElementById('taskPriority').value = 'medium';
 
             showToast('Task added successfully!', 'success');
         }
@@ -342,12 +582,63 @@
         function moveTask(taskId, newStatus) {
             const index = tasks.findIndex(t => t.id === taskId);
             if (index !== -1) {
+                const oldStatus = tasks[index].status;
                 tasks[index].status = newStatus;
                 tasks[index].updated_at = new Date().toISOString();
+
+                // Update streak when completing a task
+                if (newStatus === 'done' && oldStatus !== 'done') {
+                    updateStreak();
+                    triggerConfetti();
+                    showToast('Task completed! 🎉', 'success');
+                } else {
+                    showToast('Task moved successfully!', 'success');
+                }
+
                 saveTasksToStorage();
                 renderTasks();
-                showToast('Task moved successfully!', 'success');
             }
+        }
+
+        // Trigger confetti animation
+        function triggerConfetti() {
+            const count = 200;
+            const defaults = {
+                origin: { y: 0.7 }
+            };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, {
+                spread: 26,
+                startVelocity: 55,
+            });
+
+            fire(0.2, {
+                spread: 60,
+            });
+
+            fire(0.35, {
+                spread: 100,
+                decay: 0.91,
+                scalar: 0.8
+            });
+
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 25,
+                decay: 0.92,
+                scalar: 1.2
+            });
+
+            fire(0.1, {
+                spread: 120,
+                startVelocity: 45,
+            });
         }
 
         // Delete task
@@ -370,10 +661,12 @@
             const editTaskId = document.getElementById('editTaskId');
             const editTaskTitle = document.getElementById('editTaskTitle');
             const editTaskDescription = document.getElementById('editTaskDescription');
+            const editTaskPriority = document.getElementById('editTaskPriority');
 
             editTaskId.value = task.id;
             editTaskTitle.value = task.title;
             editTaskDescription.value = task.description || '';
+            editTaskPriority.value = task.priority || 'medium';
 
             modal.classList.remove('hidden');
         }
@@ -389,6 +682,7 @@
             const taskId = parseInt(document.getElementById('editTaskId').value);
             const title = document.getElementById('editTaskTitle').value.trim();
             const description = document.getElementById('editTaskDescription').value.trim();
+            const priority = document.getElementById('editTaskPriority').value;
 
             if (!title) {
                 showToast('Please enter a task title', 'error');
@@ -399,6 +693,7 @@
             if (index !== -1) {
                 tasks[index].title = title;
                 tasks[index].description = description || null;
+                tasks[index].priority = priority || 'medium';
                 tasks[index].updated_at = new Date().toISOString();
                 saveTasksToStorage();
                 renderTasks();
@@ -527,6 +822,210 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        // Utility: Get priority badge HTML
+        function getPriorityBadge(priority) {
+            const badges = {
+                low: '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">🟢 Low</span>',
+                medium: '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">🟡 Medium</span>',
+                high: '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">🔴 High</span>'
+            };
+            return badges[priority] || badges.medium;
+        }
+
+        // Badges/Achievements System
+        function getAchievements() {
+            const completedTasks = tasks.filter(t => t.status === 'done').length;
+            const totalTasks = tasks.length;
+
+            const achievements = [
+                {
+                    id: 'first_task',
+                    name: 'Getting Started',
+                    description: 'Complete your first task',
+                    icon: '🎯',
+                    unlocked: completedTasks >= 1,
+                    progress: Math.min(completedTasks, 1),
+                    target: 1
+                },
+                {
+                    id: 'five_tasks',
+                    name: 'Productivity Rookie',
+                    description: 'Complete 5 tasks',
+                    icon: '⭐',
+                    unlocked: completedTasks >= 5,
+                    progress: Math.min(completedTasks, 5),
+                    target: 5
+                },
+                {
+                    id: 'ten_tasks',
+                    name: 'Task Master',
+                    description: 'Complete 10 tasks',
+                    icon: '🌟',
+                    unlocked: completedTasks >= 10,
+                    progress: Math.min(completedTasks, 10),
+                    target: 10
+                },
+                {
+                    id: 'twenty_five_tasks',
+                    name: 'Productivity Pro',
+                    description: 'Complete 25 tasks',
+                    icon: '💫',
+                    unlocked: completedTasks >= 25,
+                    progress: Math.min(completedTasks, 25),
+                    target: 25
+                },
+                {
+                    id: 'fifty_tasks',
+                    name: 'Task Legend',
+                    description: 'Complete 50 tasks',
+                    icon: '🏆',
+                    unlocked: completedTasks >= 50,
+                    progress: Math.min(completedTasks, 50),
+                    target: 50
+                },
+                {
+                    id: 'three_day_streak',
+                    name: 'Consistent',
+                    description: 'Maintain a 3-day streak',
+                    icon: '🔥',
+                    unlocked: streakData.currentStreak >= 3,
+                    progress: Math.min(streakData.currentStreak, 3),
+                    target: 3
+                },
+                {
+                    id: 'seven_day_streak',
+                    name: 'Week Warrior',
+                    description: 'Maintain a 7-day streak',
+                    icon: '💪',
+                    unlocked: streakData.currentStreak >= 7,
+                    progress: Math.min(streakData.currentStreak, 7),
+                    target: 7
+                },
+                {
+                    id: 'thirty_day_streak',
+                    name: 'Month Master',
+                    description: 'Maintain a 30-day streak',
+                    icon: '👑',
+                    unlocked: streakData.currentStreak >= 30,
+                    progress: Math.min(streakData.currentStreak, 30),
+                    target: 30
+                },
+                {
+                    id: 'high_priority',
+                    name: 'Priority Player',
+                    description: 'Complete a high-priority task',
+                    icon: '🔴',
+                    unlocked: tasks.some(t => t.status === 'done' && t.priority === 'high'),
+                    progress: tasks.some(t => t.status === 'done' && t.priority === 'high') ? 1 : 0,
+                    target: 1
+                },
+                {
+                    id: 'busy_day',
+                    name: 'Busy Bee',
+                    description: 'Complete 5 tasks in one day',
+                    icon: '🐝',
+                    unlocked: streakData.todayCompletions >= 5,
+                    progress: Math.min(streakData.todayCompletions, 5),
+                    target: 5
+                }
+            ];
+
+            return achievements;
+        }
+
+        function openBadgesModal() {
+            const modal = document.getElementById('badgesModal');
+            const content = document.getElementById('badgesContent');
+
+            const achievements = getAchievements();
+            const unlockedCount = achievements.filter(a => a.unlocked).length;
+
+            content.innerHTML = achievements.map(achievement => `
+                <div class="p-4 rounded-lg border-2 ${achievement.unlocked ? 'bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-300' : 'bg-gray-50 border-gray-200 opacity-60'}">
+                    <div class="flex items-start gap-3">
+                        <div class="text-4xl ${achievement.unlocked ? 'grayscale-0' : 'grayscale'}">${achievement.icon}</div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-lg ${achievement.unlocked ? 'text-gray-900' : 'text-gray-500'}">${achievement.name}</h3>
+                            <p class="text-sm text-gray-600 mb-2">${achievement.description}</p>
+                            ${!achievement.unlocked ? `
+                                <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${(achievement.progress / achievement.target) * 100}%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500">${achievement.progress} / ${achievement.target}</p>
+                            ` : '<span class="text-xs font-semibold text-green-600">✓ UNLOCKED</span>'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add summary at the top
+            content.insertAdjacentHTML('afterbegin', `
+                <div class="col-span-1 md:col-span-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg mb-2">
+                    <h3 class="text-xl font-bold mb-2">Progress Summary</h3>
+                    <p class="text-lg">${unlockedCount} / ${achievements.length} achievements unlocked</p>
+                    <div class="w-full bg-white bg-opacity-30 rounded-full h-3 mt-2">
+                        <div class="bg-white h-3 rounded-full transition-all duration-500" style="width: ${(unlockedCount / achievements.length) * 100}%"></div>
+                    </div>
+                </div>
+            `);
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeBadgesModal() {
+            const modal = document.getElementById('badgesModal');
+            modal.classList.add('hidden');
+        }
+
+        // Theme System
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('todo_theme') || 'light';
+            setTheme(savedTheme, false);
+        }
+
+        function setTheme(theme, save = true) {
+            const body = document.body;
+
+            // Remove all theme classes
+            body.classList.remove('dark-theme', 'minimal-theme');
+
+            // Add new theme class
+            if (theme === 'dark') {
+                body.classList.add('dark-theme');
+            } else if (theme === 'minimal') {
+                body.classList.add('minimal-theme');
+            }
+
+            // Update checkmarks
+            ['light', 'dark', 'minimal'].forEach(t => {
+                const check = document.getElementById(`${t}-check`);
+                if (check) {
+                    if (t === theme) {
+                        check.classList.remove('hidden');
+                    } else {
+                        check.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Save to localStorage
+            if (save) {
+                localStorage.setItem('todo_theme', theme);
+                showToast(`Theme changed to ${theme}!`, 'success');
+                closeThemeModal();
+            }
+        }
+
+        function openThemeModal() {
+            const modal = document.getElementById('themeModal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeThemeModal() {
+            const modal = document.getElementById('themeModal');
+            modal.classList.add('hidden');
         }
     </script>
 </body>
