@@ -168,6 +168,89 @@
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
+        <!-- Authentication Section -->
+        <section id="auth-section" class="mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Account</h2>
+
+                <!-- Login/Register Forms (shown when not logged in) -->
+                <div id="auth-forms">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Login Form -->
+                        <div id="login-form" class="border-r md:pr-6">
+                            <h3 class="text-lg font-medium mb-3">Login</h3>
+                            <form id="loginForm" class="space-y-3">
+                                <input
+                                    id="login-email"
+                                    type="email"
+                                    placeholder="Email"
+                                    required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <input
+                                    id="login-password"
+                                    type="password"
+                                    placeholder="Password"
+                                    required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <button
+                                    id="login-btn"
+                                    type="submit"
+                                    class="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                                    Login
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Register Form -->
+                        <div id="register-form">
+                            <h3 class="text-lg font-medium mb-3">Create Account</h3>
+                            <form id="registerForm" class="space-y-3">
+                                <input
+                                    id="register-email"
+                                    type="email"
+                                    placeholder="Email"
+                                    required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <input
+                                    id="register-password"
+                                    type="password"
+                                    placeholder="Password (min 6 characters)"
+                                    required
+                                    minlength="6"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <button
+                                    id="register-btn"
+                                    type="submit"
+                                    class="w-full bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                                    Register
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Info (shown when logged in) -->
+                <div id="auth-user-info" style="display:none;">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600">Logged in as:</p>
+                            <p id="user-email" class="font-semibold text-lg"></p>
+                        </div>
+                        <button
+                            id="logout-btn"
+                            class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Auth Error Message -->
+                <p id="auth-error" class="mt-3 text-red-600 text-sm hidden"></p>
+            </div>
+        </section>
+
+        <!-- App Container (hidden until logged in) -->
+        <div id="app-container" style="display:none;">
         <!-- Stats Dashboard -->
         <div class="stats-grid grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
             <div class="bg-white rounded-lg shadow-md p-4 md:p-6">
@@ -254,14 +337,8 @@
                 </div>
             </div>
             <div class="mt-4 flex flex-col sm:flex-row gap-2">
-                <button onclick="clearFilters()" class="w-full sm:w-auto px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors text-sm font-medium">
+                <button onclick="clearFilters()" class="w-full sm:w-auto px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium">
                     Clear Filters
-                </button>
-                <button onclick="openExportModal()" class="w-full sm:w-auto px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors text-sm font-medium">
-                    💾 Export Data
-                </button>
-                <button onclick="openImportModal()" class="w-full sm:w-auto px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium">
-                    📥 Import Data
                 </button>
             </div>
         </div>
@@ -359,6 +436,7 @@
                 </div>
             </div>
         </div>
+        </div><!-- End of app-container -->
     </main>
 
     <!-- Edit Task Modal -->
@@ -491,67 +569,61 @@
         </div>
     </div>
 
-    <!-- Export Modal -->
-    <div id="exportModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="modal-content bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold">Export Your Tasks</h2>
-                <button onclick="closeExportModal()" class="text-gray-500 hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <p class="text-gray-600 mb-4">Download your tasks as a JSON file to backup or transfer to another device.</p>
-            <textarea id="exportData" readonly class="w-full h-64 px-4 py-2 border border-gray-300 rounded-lg font-mono text-sm mb-4"></textarea>
-            <div class="flex gap-3">
-                <button onclick="downloadExport()" class="flex-1 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
-                    💾 Download JSON
-                </button>
-                <button onclick="copyExport()" class="flex-1 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                    📋 Copy to Clipboard
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Import Modal -->
-    <div id="importModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="modal-content bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold">Import Tasks</h2>
-                <button onclick="closeImportModal()" class="text-gray-500 hover:text-gray-700">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <p class="text-gray-600 mb-4">Paste your exported JSON data or upload a file to restore your tasks.</p>
-            <textarea id="importData" placeholder="Paste your JSON data here..." class="w-full h-64 px-4 py-2 border border-gray-300 rounded-lg font-mono text-sm mb-4"></textarea>
-            <div class="flex gap-3 mb-4">
-                <button onclick="document.getElementById('importFile').click()" class="flex-1 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors font-medium">
-                    📁 Choose File
-                </button>
-                <input type="file" id="importFile" accept=".json" class="hidden" onchange="handleFileImport(event)">
-            </div>
-            <div class="flex gap-3">
-                <button onclick="importTasks(false)" class="flex-1 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                    📥 Import (Merge)
-                </button>
-                <button onclick="importTasks(true)" class="flex-1 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
-                    ⚠️ Import (Replace All)
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden transition-all">
         <p id="toastMessage">Success!</p>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script type="module">
+        // Import Firebase SDKs from CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            doc,
+            deleteDoc,
+            updateDoc,
+            onSnapshot,
+            query,
+            where,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+        // Firebase web app configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDSmStArK27afXhD73uJ2FuEkmOPe-pEqc",
+            authDomain: "todo-app-47601.firebaseapp.com",
+            projectId: "todo-app-47601",
+            storageBucket: "todo-app-47601.firebasestorage.app",
+            messagingSenderId: "756457875678",
+            appId: "1:756457875678:web:fbd8155a9d91e211f57a4f",
+            measurementId: "G-5JDJFZHNPL"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Expose Firebase instances globally for other scripts
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseCore = { auth, db };
+
+        console.log("Firebase initialized successfully");
+    </script>
+
     <script>
-        // LocalStorage-based Task Manager (No Backend Required)
+        // Firebase-based Task Manager
 
         // State
         let tasks = [];
@@ -570,22 +642,31 @@
             quick: 'all'
         };
 
+        // Current user
+        let currentUser = null;
+
+        // Firestore unsubscribe function
+        let unsubscribeTasks = null;
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
-            loadTasksFromStorage();
-            loadStreakData();
-            loadTheme();
-            requestNotificationPermission();
-            setupEventListeners();
-            setupDragAndDrop();
-            setupFilterListeners();
-            renderTasks();
-            updateStreakDisplay();
-            updateStats();
-            startNotificationChecker();
+            // Wait for Firebase to be available
+            const initApp = setInterval(() => {
+                if (window.firebaseAuth && window.firebaseDb) {
+                    clearInterval(initApp);
 
-            // Auto-focus on task title input
-            document.getElementById('taskTitle').focus();
+                    loadStreakData();
+                    loadTheme();
+                    requestNotificationPermission();
+                    setupEventListeners();
+                    setupDragAndDrop();
+                    setupFilterListeners();
+                    startNotificationChecker();
+
+                    // Setup authentication listener
+                    setupAuthListener();
+                }
+            }, 100);
         });
 
         // Setup event listeners
@@ -597,23 +678,312 @@
             if (editForm) {
                 editForm.addEventListener('submit', handleEditTask);
             }
-        }
 
-        // Load tasks from localStorage
-        function loadTasksFromStorage() {
-            const stored = localStorage.getItem('todo_tasks');
-            if (stored) {
-                tasks = JSON.parse(stored);
-                if (tasks.length > 0) {
-                    nextId = Math.max(...tasks.map(t => t.id)) + 1;
-                }
+            // Auth event listeners
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
+
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', handleRegister);
+            }
+
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
             }
         }
 
-        // Save tasks to localStorage
-        function saveTasksToStorage() {
-            localStorage.setItem('todo_tasks', JSON.stringify(tasks));
+        // Setup authentication state listener
+        function setupAuthListener() {
+            const auth = window.firebaseAuth;
+            const { onAuthStateChanged } = window.firebaseCore;
+
+            // This is a workaround since we can't directly import the function
+            // We'll use the auth object's onAuthStateChanged method
+            auth.onAuthStateChanged((user) => {
+                currentUser = user;
+
+                if (user) {
+                    // User is logged in
+                    console.log("User logged in:", user.email);
+
+                    // Hide login/register forms
+                    document.getElementById('auth-forms').style.display = 'none';
+
+                    // Show user info and logout button
+                    const userInfo = document.getElementById('auth-user-info');
+                    userInfo.style.display = 'block';
+                    document.getElementById('user-email').textContent = user.email;
+
+                    // Show the main app
+                    document.getElementById('app-container').style.display = 'block';
+
+                    // Subscribe to user's tasks
+                    subscribeToTasksForCurrentUser(renderTasks);
+
+                    // Hide auth error
+                    document.getElementById('auth-error').classList.add('hidden');
+                } else {
+                    // User is logged out
+                    console.log("User logged out");
+
+                    // Show login/register forms
+                    document.getElementById('auth-forms').style.display = 'block';
+
+                    // Hide user info
+                    document.getElementById('auth-user-info').style.display = 'none';
+
+                    // Hide the main app
+                    document.getElementById('app-container').style.display = 'none';
+
+                    // Clear tasks
+                    tasks = [];
+
+                    // Unsubscribe from tasks if subscribed
+                    if (unsubscribeTasks) {
+                        unsubscribeTasks();
+                        unsubscribeTasks = null;
+                    }
+                }
+            });
         }
+
+        // Handle user registration
+        async function handleRegister(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+
+            const authError = document.getElementById('auth-error');
+
+            try {
+                const auth = window.firebaseAuth;
+                // Import createUserWithEmailAndPassword dynamically
+                const { createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js");
+
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                console.log("User registered:", userCredential.user.email);
+
+                // Clear form
+                document.getElementById('register-email').value = '';
+                document.getElementById('register-password').value = '';
+
+                showToast('Account created successfully!', 'success');
+            } catch (error) {
+                console.error('Registration error:', error);
+                authError.textContent = getAuthErrorMessage(error.code);
+                authError.classList.remove('hidden');
+            }
+        }
+
+        // Handle user login
+        async function handleLogin(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            const authError = document.getElementById('auth-error');
+
+            try {
+                const auth = window.firebaseAuth;
+                // Import signInWithEmailAndPassword dynamically
+                const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js");
+
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                console.log("User logged in:", userCredential.user.email);
+
+                // Clear form
+                document.getElementById('login-email').value = '';
+                document.getElementById('login-password').value = '';
+
+                showToast('Logged in successfully!', 'success');
+            } catch (error) {
+                console.error('Login error:', error);
+                authError.textContent = getAuthErrorMessage(error.code);
+                authError.classList.remove('hidden');
+            }
+        }
+
+        // Handle user logout
+        async function handleLogout() {
+            try {
+                const auth = window.firebaseAuth;
+                // Import signOut dynamically
+                const { signOut } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js");
+
+                await signOut(auth);
+                console.log("User logged out");
+                showToast('Logged out successfully!', 'success');
+            } catch (error) {
+                console.error('Logout error:', error);
+                showToast('Failed to logout', 'error');
+            }
+        }
+
+        // Get user-friendly auth error messages
+        function getAuthErrorMessage(errorCode) {
+            const errorMessages = {
+                'auth/email-already-in-use': 'This email is already registered. Please login instead.',
+                'auth/invalid-email': 'Invalid email address.',
+                'auth/operation-not-allowed': 'Email/password accounts are not enabled.',
+                'auth/weak-password': 'Password should be at least 6 characters.',
+                'auth/user-disabled': 'This account has been disabled.',
+                'auth/user-not-found': 'No account found with this email.',
+                'auth/wrong-password': 'Incorrect password.',
+                'auth/invalid-credential': 'Invalid email or password.',
+                'auth/too-many-requests': 'Too many failed attempts. Please try again later.'
+            };
+
+            return errorMessages[errorCode] || 'An error occurred. Please try again.';
+        }
+
+        // ====================
+        // STORAGE ABSTRACTION LAYER
+        // ====================
+
+        // Create a new task for the current user
+        async function createTaskForCurrentUser(taskData) {
+            if (!currentUser) {
+                showToast('Please login to create tasks', 'error');
+                return null;
+            }
+
+            try {
+                const db = window.firebaseDb;
+                const { collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+
+                const taskToCreate = {
+                    ...taskData,
+                    userId: currentUser.uid,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+
+                const docRef = await addDoc(collection(db, "todos"), taskToCreate);
+                console.log("Task created with ID:", docRef.id);
+                return { id: docRef.id, ...taskToCreate };
+            } catch (error) {
+                console.error("Error creating task:", error);
+                showToast('Failed to create task', 'error');
+                return null;
+            }
+        }
+
+        // Update a task for the current user
+        async function updateTaskForCurrentUser(taskId, updates) {
+            if (!currentUser) {
+                showToast('Please login to update tasks', 'error');
+                return false;
+            }
+
+            try {
+                const db = window.firebaseDb;
+                const { doc, updateDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+
+                const taskRef = doc(db, "todos", taskId);
+                await updateDoc(taskRef, {
+                    ...updates,
+                    updatedAt: serverTimestamp()
+                });
+
+                console.log("Task updated:", taskId);
+                return true;
+            } catch (error) {
+                console.error("Error updating task:", error);
+                showToast('Failed to update task', 'error');
+                return false;
+            }
+        }
+
+        // Delete a task for the current user
+        async function deleteTaskForCurrentUser(taskId) {
+            if (!currentUser) {
+                showToast('Please login to delete tasks', 'error');
+                return false;
+            }
+
+            try {
+                const db = window.firebaseDb;
+                const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+
+                const taskRef = doc(db, "todos", taskId);
+                await deleteDoc(taskRef);
+
+                console.log("Task deleted:", taskId);
+                return true;
+            } catch (error) {
+                console.error("Error deleting task:", error);
+                showToast('Failed to delete task', 'error');
+                return false;
+            }
+        }
+
+        // Subscribe to tasks for the current user (real-time updates)
+        function subscribeToTasksForCurrentUser(callback) {
+            if (!currentUser) {
+                console.log("No user logged in, cannot subscribe to tasks");
+                return null;
+            }
+
+            // Unsubscribe from previous subscription if exists
+            if (unsubscribeTasks) {
+                unsubscribeTasks();
+            }
+
+            (async () => {
+                try {
+                    const db = window.firebaseDb;
+                    const { collection, query, where, onSnapshot } = await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js");
+
+                    const q = query(
+                        collection(db, "todos"),
+                        where("userId", "==", currentUser.uid)
+                    );
+
+                    unsubscribeTasks = onSnapshot(q, (snapshot) => {
+                        tasks = [];
+                        snapshot.forEach((doc) => {
+                            tasks.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
+                        });
+
+                        console.log(`Loaded ${tasks.length} tasks from Firestore`);
+                        callback(tasks);
+                        updateStats();
+                        updateStreakDisplay();
+                    }, (error) => {
+                        console.error("Error subscribing to tasks:", error);
+                        showToast('Failed to load tasks', 'error');
+                    });
+
+                } catch (error) {
+                    console.error("Error setting up task subscription:", error);
+                    showToast('Failed to setup task sync', 'error');
+                }
+            })();
+        }
+
+        // OLD LOCAL STORAGE IMPLEMENTATION (no longer used for tasks)
+        // function loadTasksFromStorage() {
+        //     const stored = localStorage.getItem('todo_tasks');
+        //     if (stored) {
+        //         tasks = JSON.parse(stored);
+        //         if (tasks.length > 0) {
+        //             nextId = Math.max(...tasks.map(t => t.id)) + 1;
+        //         }
+        //     }
+        // }
+
+        // function saveTasksToStorage() {
+        //     localStorage.setItem('todo_tasks', JSON.stringify(tasks));
+        // }
 
         // Load streak data from localStorage
         function loadStreakData() {
@@ -802,7 +1172,7 @@
         }
 
         // Handle add task form submission
-        function handleAddTask(e) {
+        async function handleAddTask(e) {
             e.preventDefault();
 
             const title = document.getElementById('taskTitle').value.trim();
@@ -825,41 +1195,40 @@
                 }
             }
 
-            const newTask = {
-                id: nextId++,
+            const taskData = {
                 title,
                 description: description || null,
                 priority: priority || 'medium',
                 status: 'todo',
                 due_date: dueDateTime,
-                notified: false,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                notified: false
             };
 
-            tasks.push(newTask);
-            saveTasksToStorage();
-            renderTasks();
-            updateStats();
+            const createdTask = await createTaskForCurrentUser(taskData);
 
-            // Clear form
-            document.getElementById('taskTitle').value = '';
-            document.getElementById('taskDescription').value = '';
-            document.getElementById('taskPriority').value = 'medium';
-            document.getElementById('taskDueDate').value = '';
-            document.getElementById('taskDueTime').value = '';
+            if (createdTask) {
+                // Clear form
+                document.getElementById('taskTitle').value = '';
+                document.getElementById('taskDescription').value = '';
+                document.getElementById('taskPriority').value = 'medium';
+                document.getElementById('taskDueDate').value = '';
+                document.getElementById('taskDueTime').value = '';
 
-            showToast('Task added successfully!', 'success');
+                showToast('Task added successfully!', 'success');
+            }
         }
 
         // Move task to different status
-        function moveTask(taskId, newStatus) {
-            const index = tasks.findIndex(t => t.id === taskId);
-            if (index !== -1) {
-                const oldStatus = tasks[index].status;
-                tasks[index].status = newStatus;
-                tasks[index].updated_at = new Date().toISOString();
+        async function moveTask(taskId, newStatus) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
 
+            const oldStatus = task.status;
+
+            // Update in Firestore
+            const success = await updateTaskForCurrentUser(taskId, { status: newStatus });
+
+            if (success) {
                 // Update streak when completing a task
                 if (newStatus === 'done' && oldStatus !== 'done') {
                     updateStreak();
@@ -868,10 +1237,6 @@
                 } else {
                     showToast('Task moved successfully!', 'success');
                 }
-
-                saveTasksToStorage();
-                renderTasks();
-                updateStats();
             }
         }
 
@@ -917,15 +1282,14 @@
         }
 
         // Delete task
-        function deleteTask(taskId) {
+        async function deleteTask(taskId) {
             if (!confirm('Are you sure you want to delete this task?')) return;
 
-            tasks = tasks.filter(t => t.id !== taskId);
-            saveTasksToStorage();
-            renderTasks();
-            updateStats();
+            const success = await deleteTaskForCurrentUser(taskId);
 
-            showToast('Task deleted successfully!', 'success');
+            if (success) {
+                showToast('Task deleted successfully!', 'success');
+            }
         }
 
         // Edit Task functionality
@@ -963,10 +1327,10 @@
             modal.classList.add('hidden');
         }
 
-        function handleEditTask(e) {
+        async function handleEditTask(e) {
             e.preventDefault();
 
-            const taskId = parseInt(document.getElementById('editTaskId').value);
+            const taskId = document.getElementById('editTaskId').value;
             const title = document.getElementById('editTaskTitle').value.trim();
             const description = document.getElementById('editTaskDescription').value.trim();
             const priority = document.getElementById('editTaskPriority').value;
@@ -987,28 +1351,27 @@
                 }
             }
 
-            const index = tasks.findIndex(t => t.id === taskId);
-            if (index !== -1) {
-                tasks[index].title = title;
-                tasks[index].description = description || null;
-                tasks[index].priority = priority || 'medium';
-                tasks[index].due_date = dueDateTime;
-                tasks[index].notified = false; // Reset notification flag when due date changes
-                tasks[index].updated_at = new Date().toISOString();
-                saveTasksToStorage();
-                renderTasks();
-                updateStats();
-            }
+            const updates = {
+                title,
+                description: description || null,
+                priority: priority || 'medium',
+                due_date: dueDateTime,
+                notified: false // Reset notification flag when due date changes
+            };
 
-            closeEditModal();
-            showToast('Task updated successfully!', 'success');
+            const success = await updateTaskForCurrentUser(taskId, updates);
+
+            if (success) {
+                closeEditModal();
+                showToast('Task updated successfully!', 'success');
+            }
         }
 
         // Drag and Drop functionality
         let draggedTaskId = null;
 
         function handleDragStart(e) {
-            draggedTaskId = parseInt(e.target.getAttribute('data-task-id'));
+            draggedTaskId = e.target.getAttribute('data-task-id');
             e.target.style.opacity = '0.5';
             e.dataTransfer.effectAllowed = 'move';
         }
@@ -1521,112 +1884,7 @@
             renderTasks();
         }
 
-        // Export/Import System
-        function openExportModal() {
-            const modal = document.getElementById('exportModal');
-            const exportData = {
-                version: '1.0',
-                exported_at: new Date().toISOString(),
-                tasks: tasks,
-                streak: streakData
-            };
-
-            document.getElementById('exportData').value = JSON.stringify(exportData, null, 2);
-            modal.classList.remove('hidden');
-        }
-
-        function closeExportModal() {
-            document.getElementById('exportModal').classList.add('hidden');
-        }
-
-        function downloadExport() {
-            const data = document.getElementById('exportData').value;
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `todo-backup-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast('Tasks exported successfully!', 'success');
-        }
-
-        function copyExport() {
-            const textarea = document.getElementById('exportData');
-            textarea.select();
-            document.execCommand('copy');
-            showToast('Copied to clipboard!', 'success');
-        }
-
-        function openImportModal() {
-            document.getElementById('importModal').classList.remove('hidden');
-        }
-
-        function closeImportModal() {
-            document.getElementById('importModal').classList.add('hidden');
-            document.getElementById('importData').value = '';
-        }
-
-        function handleFileImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('importData').value = e.target.result;
-            };
-            reader.readAsText(file);
-        }
-
-        function importTasks(replace = false) {
-            const data = document.getElementById('importData').value.trim();
-            if (!data) {
-                showToast('Please paste or upload data to import', 'error');
-                return;
-            }
-
-            try {
-                const imported = JSON.parse(data);
-
-                if (!imported.tasks || !Array.isArray(imported.tasks)) {
-                    showToast('Invalid data format', 'error');
-                    return;
-                }
-
-                if (replace) {
-                    if (!confirm('This will DELETE all your current tasks and replace them. Are you sure?')) {
-                        return;
-                    }
-                    tasks = imported.tasks;
-                    nextId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
-                } else {
-                    // Merge: reassign IDs to avoid conflicts
-                    const maxId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) : 0;
-                    imported.tasks.forEach((task, index) => {
-                        task.id = maxId + index + 1;
-                        tasks.push(task);
-                    });
-                    nextId = Math.max(...tasks.map(t => t.id)) + 1;
-                }
-
-                if (imported.streak) {
-                    streakData = imported.streak;
-                    saveStreakData();
-                    updateStreakDisplay();
-                }
-
-                saveTasksToStorage();
-                renderTasks();
-                updateStats();
-                closeImportModal();
-                showToast(`Successfully imported ${imported.tasks.length} tasks!`, 'success');
-            } catch (error) {
-                console.error('Import error:', error);
-                showToast('Failed to import: Invalid JSON format', 'error');
-            }
-        }
+        // Export/Import functionality removed - tasks are now stored in Firebase Firestore
     </script>
 </body>
 </html>
