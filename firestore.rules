@@ -1,6 +1,18 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Users collection - users can only access their own profile
+    match /users/{userId} {
+      // Allow read if user is authenticated and accessing their own profile
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // Allow create/update if user is authenticated and it's their own profile
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+
+      // Prevent deletion of user profiles
+      allow delete: if false;
+    }
+
     // Tasks collection - users can only access their own tasks
     match /todos/{taskId} {
       // Allow read if the task belongs to the authenticated user
