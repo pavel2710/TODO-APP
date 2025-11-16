@@ -930,26 +930,26 @@
             <!-- Right Column: Task Board -->
             <div class="lg:col-span-8">
                 <!-- Quick Add Bar -->
-                <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 mb-5 border border-white/20 shadow-xl">
+                <div class="bg-white rounded-xl p-4 mb-5 border border-gray-200 shadow-lg">
                     <form id="quickAddForm" class="flex gap-3">
                         <input
                             type="text"
                             id="quickTaskTitle"
                             placeholder="⚡ Quick add: Type task and press Enter..."
-                            class="flex-1 px-4 py-2.5 bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-blue-200 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:bg-white/20 transition-all text-base"
+                            class="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all text-base"
                         />
-                        <select id="quickTaskPriority" class="px-3 py-2.5 bg-white/10 backdrop-blur-sm border border-white/30 text-white rounded-lg focus:ring-2 focus:ring-blue-400 focus:bg-white/20 transition-all text-sm">
-                            <option value="low" class="bg-gray-800">🟢 Low</option>
-                            <option value="medium" selected class="bg-gray-800">🟡 Medium</option>
-                            <option value="high" class="bg-gray-800">🔴 High</option>
+                        <select id="quickTaskPriority" class="px-3 py-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm">
+                            <option value="low">🟢 Low</option>
+                            <option value="medium" selected>🟡 Medium</option>
+                            <option value="high">🔴 High</option>
                         </select>
-                        <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all font-semibold shadow-xl hover:shadow-2xl border border-blue-400/30">
+                        <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                             <svg class="w-5 h-5 inline-block -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
                         </button>
                     </form>
-                    <p class="text-xs text-blue-200 mt-2 ml-1">💡 Tip: Press <kbd class="px-2 py-0.5 bg-white/20 border border-white/30 rounded text-xs font-mono text-white">N</kbd> from anywhere to add a task</p>
+                    <p class="text-xs text-gray-600 mt-2 ml-1">💡 Tip: Press <kbd class="px-2 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs font-mono text-gray-700">N</kbd> from anywhere to add a task</p>
                 </div>
 
                 <div class="kanban-board grid grid-cols-1 md:grid-cols-3 gap-5">
