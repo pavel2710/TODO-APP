@@ -580,7 +580,7 @@
                             <h1 class="text-5xl font-bold">📋</h1>
                         </div>
                         <h2 class="text-4xl font-bold text-gray-900 mb-3">TaskFlow</h2>
-                        <p class="text-gray-600 text-lg">Organize your tasks efficiently with cloud sync</p>
+                        <p class="text-gray-600 text-lg">Organize your tasks efficiently</p>
                     </div>
 
                     <!-- Unified Auth Form -->
@@ -1315,10 +1315,10 @@
             if (loginTab && registerTab) {
                 loginTab.addEventListener('click', () => {
                     // Switch to login tab
-                    loginTab.classList.add('text-white', 'border-blue-400');
-                    loginTab.classList.remove('text-blue-200', 'border-transparent');
-                    registerTab.classList.add('text-blue-200', 'border-transparent');
-                    registerTab.classList.remove('text-white', 'border-blue-400', 'border-green-400');
+                    loginTab.classList.add('text-blue-600', 'border-blue-600');
+                    loginTab.classList.remove('text-gray-500', 'border-transparent');
+                    registerTab.classList.add('text-gray-500', 'border-transparent');
+                    registerTab.classList.remove('text-blue-600', 'border-blue-600', 'text-green-600', 'border-green-600');
 
                     loginFormDiv.style.display = 'block';
                     registerFormDiv.style.display = 'none';
@@ -1329,10 +1329,10 @@
 
                 registerTab.addEventListener('click', () => {
                     // Switch to register tab
-                    registerTab.classList.add('text-white', 'border-green-400');
-                    registerTab.classList.remove('text-blue-200', 'border-transparent');
-                    loginTab.classList.add('text-blue-200', 'border-transparent');
-                    loginTab.classList.remove('text-white', 'border-blue-400');
+                    registerTab.classList.add('text-green-600', 'border-green-600');
+                    registerTab.classList.remove('text-gray-500', 'border-transparent');
+                    loginTab.classList.add('text-gray-500', 'border-transparent');
+                    loginTab.classList.remove('text-blue-600', 'border-blue-600');
 
                     registerFormDiv.style.display = 'block';
                     loginFormDiv.style.display = 'none';
